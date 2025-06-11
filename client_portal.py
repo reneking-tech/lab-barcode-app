@@ -7,7 +7,7 @@ from datetime import date
 import os
 
 st.set_page_config(page_title="Client Portal - Test Status", layout="centered")
-st.title("🧪 Bionexa Client Portal")
+st.title("🧪 Egoli Client Portal")
 st.markdown("Enter your **Sample ID** *or* **Email** below to track the status of your chemical test.")
 
 col1, col2 = st.columns(2)

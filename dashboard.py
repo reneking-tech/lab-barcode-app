@@ -10,8 +10,10 @@ import os
 import plotly.express as px
 
 # --- Page Config ---
-st.set_page_config(page_title="Egoli Lab Chemical Dashboard", layout="wide")
-st.title("🔬Bionexa Lab Chemical Dashboard")
+st.set_page_config(
+    page_title="Bionexa Dashboard",  # This sets the tab title
+    page_icon="🧪",                  # Optional: set a favicon
+)
 
 # --- Database Setup ---
 session = Session()
@@ -51,13 +53,16 @@ st.sidebar.header("🔎 Filters")
 
 if not df.empty:
     status_options = df["Status"].unique().tolist()
-    selected_status = st.sidebar.multiselect("Status", status_options, default=status_options)
+    selected_status = st.sidebar.multiselect(
+        "Status", status_options, default=status_options)
 
     expiry_status_options = df["Expiry Status"].unique().tolist()
-    selected_expiry_status = st.sidebar.multiselect("Expiry Status", expiry_status_options, default=expiry_status_options)
+    selected_expiry_status = st.sidebar.multiselect(
+        "Expiry Status", expiry_status_options, default=expiry_status_options)
 
     hazard_options = df["Hazard Class"].dropna().unique().tolist()
-    selected_hazards = st.sidebar.multiselect("Hazard Class", hazard_options, default=hazard_options)
+    selected_hazards = st.sidebar.multiselect(
+        "Hazard Class", hazard_options, default=hazard_options)
 
     filtered_df = df[
         (df["Status"].isin(selected_status)) &
@@ -71,12 +76,14 @@ else:
 # --- Expiry Summary ---
 st.sidebar.markdown("### ⏰ Expiry Summary")
 if not df.empty:
-    st.sidebar.dataframe(df["Expiry Status"].value_counts().reset_index().rename(columns={"index": "Status", "Expiry Status": "Count"}))
+    st.sidebar.dataframe(df["Expiry Status"].value_counts().reset_index().rename(
+        columns={"index": "Status", "Expiry Status": "Count"}))
 
 # --- Reorder Alerts ---
 st.sidebar.header("🛒 Reorder Alerts")
 if not df.empty:
-    reorder_alerts = df[df["Status"] == "in_stock"].groupby(["Chemical Name"]).size()
+    reorder_alerts = df[df["Status"] == "in_stock"].groupby(
+        ["Chemical Name"]).size()
     low_stock = reorder_alerts[reorder_alerts <= 5]
     if not low_stock.empty:
         st.sidebar.error(f"⚠️ Low Stock Alert:\n\n{low_stock}")
@@ -86,6 +93,7 @@ if not df.empty:
 # --- Main Display Table ---
 st.markdown("### 📦 Filtered Chemicals")
 
+
 def color_expiry(val):
     if val == "Expired":
         return 'background-color: #ff4d4d'
@@ -93,6 +101,7 @@ def color_expiry(val):
         return 'background-color: #ffe066'
     else:
         return ''
+
 
 if not filtered_df.empty:
     st.dataframe(
@@ -106,8 +115,9 @@ else:
 st.markdown("### 🖼️ Barcode Preview (First 3 Rows)")
 
 for i, row in filtered_df.head(3).iterrows():
-    st.markdown(f"**{row['Chemical Name']} – {row['Article Number']} – {row['Batch Number']}**")
-    
+    st.markdown(
+        f"**{row['Chemical Name']} – {row['Article Number']} – {row['Batch Number']}**")
+
     # Show the exact path being checked
     st.text(f"🔎 Looking for: {row['Barcode Path']}")
 
@@ -130,7 +140,8 @@ with st.form("receive_chemical_form"):
     expiry_date = st.date_input("Expiry Date")
     hazard_class = st.text_input("Hazard Class")
     ph = st.text_input("pH Value")
-    reorder_point = st.number_input("Reorder Point (Minimum Stock Level)", min_value=1, value=5)
+    reorder_point = st.number_input(
+        "Reorder Point (Minimum Stock Level)", min_value=1, value=5)
 
     submitted = st.form_submit_button("Receive Chemical")
 
@@ -168,14 +179,16 @@ with st.form("receive_chemical_form"):
             session.commit()
             session.close()
 
-            st.success(f"✅ Received and recorded chemical: {chemical_name} ({article_number})")
+            st.success(
+                f"✅ Received and recorded chemical: {chemical_name} ({article_number})")
             st.rerun()
 
 # --- Dispatch Chemical Form ---
 st.markdown("## ➡️ Dispatch Chemical (Scan or Type Barcode)")
 
 with st.form("dispatch_chemical_form"):
-    barcode_input = st.text_input("Scan or Enter Barcode (Article Number-Batch Number)")
+    barcode_input = st.text_input(
+        "Scan or Enter Barcode (Article Number-Batch Number)")
     dispatch_submit = st.form_submit_button("Dispatch Chemical")
 
     if dispatch_submit:
@@ -208,7 +221,8 @@ with st.form("dispatch_chemical_form"):
                     session.commit()
                     session.close()
 
-                    st.success(f"✅ Dispatched chemical: {matching_chemical.chemical_name}")
+                    st.success(
+                        f"✅ Dispatched chemical: {matching_chemical.chemical_name}")
                     st.rerun()
             else:
                 st.error("❌ No matching chemical found.")
@@ -237,7 +251,8 @@ st.markdown("## 📊 Analytics Overview")
 if not df.empty:
     # --- Stock Levels by Chemical Name ---
     st.markdown("### Stock Levels by Chemical")
-    stock_levels = df[df["Status"] == "in_stock"]["Chemical Name"].value_counts().reset_index()
+    stock_levels = df[df["Status"] ==
+                      "in_stock"]["Chemical Name"].value_counts().reset_index()
     stock_levels.columns = ["Chemical Name", "Count"]
     st.dataframe(stock_levels, use_container_width=True)
 
@@ -245,27 +260,33 @@ if not df.empty:
     st.markdown("### Chemicals by Hazard Class")
     hazard_counts = df["Hazard Class"].dropna().value_counts().reset_index()
     hazard_counts.columns = ["Hazard Class", "Count"]
-    st.bar_chart(hazard_counts.set_index("Hazard Class"), use_container_width=True)
+    st.bar_chart(hazard_counts.set_index(
+        "Hazard Class"), use_container_width=True)
 
     # --- Toggle Chart Type for Status ---
     st.markdown("### Chemicals by Status")
-    chart_type = st.radio("Select chart type:", ["Bar Chart", "Pie Chart"], horizontal=True)
+    chart_type = st.radio("Select chart type:", [
+                          "Bar Chart", "Pie Chart"], horizontal=True)
 
     status_chart = df["Status"].value_counts().reset_index()
     status_chart.columns = ["Status", "Count"]
 
     if chart_type == "Bar Chart":
-        st.bar_chart(data=status_chart.set_index("Status"), use_container_width=True)
+        st.bar_chart(data=status_chart.set_index(
+            "Status"), use_container_width=True)
     else:
-        pie_chart = px.pie(status_chart, names="Status", values="Count", title="Chemical Status Distribution")
+        pie_chart = px.pie(status_chart, names="Status",
+                           values="Count", title="Chemical Status Distribution")
         st.plotly_chart(pie_chart, use_container_width=True)
 
     # --- Expiry by Month ---
     st.markdown("### Chemicals by Expiry Month")
-    df["Expiry Month"] = df["Expiry Date"].apply(lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
+    df["Expiry Month"] = df["Expiry Date"].apply(
+        lambda x: x.strftime("%Y-%m") if pd.notnull(x) else None)
     expiry_chart = df["Expiry Month"].value_counts().sort_index().reset_index()
     expiry_chart.columns = ["Month", "Count"]
-    st.line_chart(data=expiry_chart.set_index("Month"), use_container_width=True)
+    st.line_chart(data=expiry_chart.set_index(
+        "Month"), use_container_width=True)
 else:
     st.info("No data available for analytics yet.")
 

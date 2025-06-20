@@ -11,7 +11,7 @@ import plotly.express as px
 
 # --- Page Config ---
 st.set_page_config(page_title="Egoli Lab Chemical Dashboard", layout="wide")
-st.title("🔬Egoli Lab Chemical Dashboard")
+st.title("🔬Bionexa Lab Chemical Dashboard")
 
 # --- Database Setup ---
 session = Session()

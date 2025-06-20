@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# OS files
+.DS_Store
+
+# Database files
+*.db
+
+# Streamlit cache
+.streamlit/
+
+# Barcode images and other generated static files
+static/barcodes/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VS Code settings
+.vscode/
